@@ -1,8 +1,8 @@
-/**
- * Created by samy on 19-3-16.
- */
+package CryptoP2P;
+
 public class Main {
+
     public static void main(String[] args) {
-        // write your code here
+        Transporter t1 = new Transporter();
     }
 }
