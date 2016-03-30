@@ -1,4 +1,4 @@
-package CryptoP2P;
+package be.pxl;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;

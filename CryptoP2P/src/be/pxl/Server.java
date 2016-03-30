@@ -1,4 +1,4 @@
-package CryptoP2P;
+package be.pxl;
 
 import java.io.IOException;
 import java.io.InputStream;

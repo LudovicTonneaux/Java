@@ -1,4 +1,4 @@
-package CryptoP2P;
+package be.pxl;
 
 import javax.crypto.Cipher;
 import java.io.BufferedOutputStream;
