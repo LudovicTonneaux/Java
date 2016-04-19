@@ -1,12 +1,14 @@
 package be.pxl;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.management.MBeanServerConnection;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
@@ -17,7 +19,9 @@ import static sun.security.x509.CertificateAlgorithmId.ALGORITHM;
  */
 public class RSA {
 
-    public static void GenerateKeys() {
+    private boolean keysCreated=false;
+
+    public  void GenerateKeys() {
         try {
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -39,7 +43,7 @@ public class RSA {
         }
     }
 
-    public static void saveToFile(String fileName, BigInteger mod, BigInteger exp) {
+    private  void saveToFile(String fileName, BigInteger mod, BigInteger exp) {
         ObjectOutputStream oout = null;
         try {
             oout = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
@@ -60,51 +64,90 @@ public class RSA {
         }
     }
 
+    private  PublicKey readPubKeyFromFile(String keyFileName) throws IOException {
+        InputStream in = RSA.class.getResourceAsStream(keyFileName);
+        ObjectInputStream oin =
+                new ObjectInputStream(new BufferedInputStream(in));
+        try {
+            BigInteger m = (BigInteger) oin.readObject();
+            BigInteger e = (BigInteger) oin.readObject();
+            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(m, e);
+            KeyFactory fact = KeyFactory.getInstance("RSA");
+            return fact.generatePublic(keySpec);
+        } catch (Exception e) {
+            throw new RuntimeException("Spurious serialisation error", e);
+        } finally {
+            oin.close();
+        }
+    }
+
+    public  PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
+        InputStream in = RSA.class.getResourceAsStream(keyFileName);
+        ObjectInputStream oin =
+                new ObjectInputStream(new BufferedInputStream(in));
+        try {
+            BigInteger m = (BigInteger) oin.readObject();
+            BigInteger e = (BigInteger) oin.readObject();
+            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(m, e);
+            KeyFactory fact = KeyFactory.getInstance("RSA");
+            return fact.generatePrivate(keySpec);
+        } catch (Exception e) {
+            throw new RuntimeException("Spurious serialisation error", e);
+        } finally {
+            oin.close();
+        }
+    }
+
     /**
-     * Encrypt the plain text using public key.
+     * Encrypt the plain data.
      *
-     * @param text : original plain text
-     * @param key  :The public key
+     * @param data : original plain data
+     * @param keyPath  :The private key
      * @return Encrypted text
      * @throws java.lang.Exception
      */
-    public static byte[] encrypt(String text, PublicKey key) {
-        byte[] cipherText = null;
-        try {
-            // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance(ALGORITHM);
-            // encrypt the plain text using the public key
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            cipherText = cipher.doFinal(text.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
+    public  byte[] Encrypt(byte[] data, String keyPath)  throws Exception {
+        if (!keysCreated){
+            GenerateKeys();
         }
-        return cipherText;
+        byte[] encryptedData = null;
+        try {
+        PublicKey pubKey = readPubKeyFromFile("/public.key");
+            // get an RSA cipher object and print the provider
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+            // encrypt the plain data using the public key and return it
+            encryptedData= cipher.doFinal(data);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return encryptedData;
     }
 
     /**
      * Decrypt text using private key.
      *
      * @param text :encrypted text
-     * @param key  :The private key
+     * @param keyPath  :The private key
      * @return plain text
      * @throws java.lang.Exception
      */
-    public static String decrypt(byte[] text, PrivateKey key) {
-        byte[] dectyptedText = null;
+    public  byte[] Decrypt(byte[] text, String keyPath) throws Exception{
+        if (!keysCreated){
+            GenerateKeys();
+        }
+        byte[] decryptedData = null;
         try {
+            PrivateKey privKey = readPrivKeyFromFile("/public.key");
             // get an RSA cipher object and print the provider
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
-
             // decrypt the text using the private key
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            dectyptedText = cipher.doFinal(text);
-
+            cipher.init(Cipher.DECRYPT_MODE, privKey);
+            decryptedData = cipher.doFinal(text);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        return new String(dectyptedText);
+        return decryptedData;
     }
 
 }
