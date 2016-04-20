@@ -1,14 +1,9 @@
 package be.pxl;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.management.MBeanServerConnection;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
@@ -81,7 +76,7 @@ public class RSA {
         }
     }
 
-    public  PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
+    private PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
         InputStream in = RSA.class.getResourceAsStream(keyFileName);
         ObjectInputStream oin =
                 new ObjectInputStream(new BufferedInputStream(in));
@@ -102,11 +97,12 @@ public class RSA {
      * Encrypt the plain data.
      *
      * @param data : original plain data
-     * @param keyPath  :The private key
+     * @param keyPath  :The key path
+     * @param keyType  :The type of key
      * @return Encrypted text
      * @throws java.lang.Exception
      */
-    public  byte[] Encrypt(byte[] data, String keyPath)  throws Exception {
+    public byte[] Encrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         if (!keysCreated){
             GenerateKeys();
         }
@@ -127,12 +123,13 @@ public class RSA {
     /**
      * Decrypt text using private key.
      *
-     * @param text :encrypted text
-     * @param keyPath  :The private key
+     * @param data :encrypted text
+     * @param keyPath  :The key path
+     * @param keyType  :The type of key
      * @return plain text
      * @throws java.lang.Exception
      */
-    public  byte[] Decrypt(byte[] text, String keyPath) throws Exception{
+    public byte[] Decrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         if (!keysCreated){
             GenerateKeys();
         }
@@ -143,11 +140,15 @@ public class RSA {
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
             // decrypt the text using the private key
             cipher.init(Cipher.DECRYPT_MODE, privKey);
-            decryptedData = cipher.doFinal(text);
+            decryptedData = cipher.doFinal(data);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return decryptedData;
+    }
+
+    private enum KeyType {
+        PUBLIC, PRIVATE
     }
 
 }

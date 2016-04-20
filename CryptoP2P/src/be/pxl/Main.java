@@ -1,8 +1,5 @@
 package be.pxl;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class Main {
     /**
      * Created by Samy Coenen on 01/03/2016.
@@ -24,5 +21,7 @@ public class Main {
 
 */
         RSA rsa = new RSA();
+        rsa.GenerateKeys();
+//rsa.Decrypt("okokokok".getBytes(),)
     }
 }
