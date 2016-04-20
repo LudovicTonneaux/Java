@@ -23,6 +23,6 @@ public class Main {
         timer1.schedule(task1, 1000,1000);
 
 */
-        RSA.GenerateKeys();
+        RSA rsa = new RSA();
     }
 }
