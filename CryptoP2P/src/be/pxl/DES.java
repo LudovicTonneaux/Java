@@ -31,6 +31,22 @@ public class DES {
         }
     }
 
+    public static void Decrypt(String password, FileInputStream sourceFile, FileOutputStream locationFile) {
+        try {
+            EncryptOrDecrypt(password, Cipher.DECRYPT_MODE, sourceFile, locationFile);
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(ex.getMessage());
+        } catch (InvalidKeySpecException ex) {
+            System.out.println(ex.getMessage());
+        } catch (NoSuchPaddingException ex) {
+            System.out.println(ex.getMessage());
+        } catch (InvalidKeyException ex) {
+            System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
 
     private static void EncryptOrDecrypt(String password, int mode, InputStream is, OutputStream os) throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, NoSuchPaddingException, IOException {
         DESKeySpec dks = new DESKeySpec(password.getBytes());

@@ -1,5 +1,9 @@
 package be.pxl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 public class Main {
     /**
      * Created by Samy Coenen on 01/03/2016.
@@ -23,5 +27,16 @@ public class Main {
         RSA rsa = new RSA();
         rsa.GenerateKeys();
 //rsa.Decrypt("okokokok".getBytes(),)
+        try {
+            System.out.println(Hasher.CheckSumSHA256("F:/s.txt"));
+            String path = new File("").getAbsolutePath() + "\\CryptoP2P\\";
+            DES.Encrypt("okokokokokokokok", new FileInputStream(path + "s.txt"), new FileOutputStream(path + "d.txt"));
+            rsa.Encrypt(RSA.KeyType.PUBLIC)
+            DES.Decrypt("okokokokokokokok", new FileInputStream(path + "d.txt"), new FileOutputStream(path + "de.txt"));
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
     }
 }

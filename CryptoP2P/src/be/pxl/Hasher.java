@@ -8,21 +8,21 @@ import java.security.MessageDigest;
  */
 public class Hasher {
     static public String CheckSumSHA256(String fileLocation) throws Exception {
-
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         FileInputStream fis = new FileInputStream(fileLocation);
+        System.out.println(fileLocation);
         byte[] dataBytes = new byte[1024];
         int nread = 0;
         while ((nread = fis.read(dataBytes)) != -1) {
             md.update(dataBytes, 0, nread);
         }
         byte[] mdbytes = md.digest();
-        //convert the byte to hex format method 1
+        /*convert the byte to hex format method 1
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < mdbytes.length; i++) {
             sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
         }
-        System.out.println("Hex format : " + sb.toString());
+        System.out.println("Hex format : " + sb.toString());*/
         //convert the byte to hex format method 2
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < mdbytes.length; i++) {
