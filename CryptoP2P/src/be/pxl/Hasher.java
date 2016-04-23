@@ -10,7 +10,6 @@ public class Hasher {
     static public String CheckSumSHA256(String fileLocation) throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         FileInputStream fis = new FileInputStream(fileLocation);
-        System.out.println(fileLocation);
         byte[] dataBytes = new byte[1024];
         int nread = 0;
         while ((nread = fis.read(dataBytes)) != -1) {

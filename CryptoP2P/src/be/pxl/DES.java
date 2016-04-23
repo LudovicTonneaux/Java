@@ -15,7 +15,7 @@ public class DES {
         return null;
     }
 
-    public static void Encrypt(String password, FileInputStream sourceFile, FileOutputStream locationFile) {
+    public static void Encrypt(SecretKey password, FileInputStream sourceFile, FileOutputStream locationFile) {
         try {
             EncryptOrDecrypt(password, Cipher.ENCRYPT_MODE, sourceFile, locationFile);
         } catch (NoSuchAlgorithmException ex) {
@@ -31,7 +31,7 @@ public class DES {
         }
     }
 
-    public static void Decrypt(String password, FileInputStream sourceFile, FileOutputStream locationFile) {
+    public static void Decrypt(SecretKey password, FileInputStream sourceFile, FileOutputStream locationFile) {
         try {
             EncryptOrDecrypt(password, Cipher.DECRYPT_MODE, sourceFile, locationFile);
         } catch (NoSuchAlgorithmException ex) {
@@ -48,8 +48,8 @@ public class DES {
     }
 
 
-    private static void EncryptOrDecrypt(String password, int mode, InputStream is, OutputStream os) throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, NoSuchPaddingException, IOException {
-        DESKeySpec dks = new DESKeySpec(password.getBytes());
+    private static void EncryptOrDecrypt(SecretKey password, int mode, InputStream is, OutputStream os) throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, NoSuchPaddingException, IOException {
+        DESKeySpec dks = new DESKeySpec(password.getEncoded());
         SecretKeyFactory skf = SecretKeyFactory.getInstance("DES");
         SecretKey desKey = skf.generateSecret(dks);
         Cipher cipher = Cipher.getInstance("DES"); // DES/ECB/PKCS5Padding for SunJCE

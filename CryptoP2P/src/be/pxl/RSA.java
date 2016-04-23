@@ -7,16 +7,14 @@ import java.security.*;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-import static sun.security.x509.CertificateAlgorithmId.ALGORITHM;
-
 /**
  * Created by Samy Coenen on 29/03/2016.
  */
 public class RSA {
 
-    private boolean keysCreated=false;
+    private static boolean keysCreated = false;
 
-    public  void GenerateKeys() {
+    public static void GenerateKeys() {
         try {
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -33,12 +31,13 @@ public class RSA {
                     pub.getPublicExponent());
             saveToFile("private.key", priv.getModulus(),
                     priv.getPrivateExponent());
+            keysCreated = true;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }
 
-    private  void saveToFile(String fileName, BigInteger mod, BigInteger exp) {
+    private static void saveToFile(String fileName, BigInteger mod, BigInteger exp) {
         ObjectOutputStream oout = null;
         try {
             oout = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
@@ -59,10 +58,9 @@ public class RSA {
         }
     }
 
-    private  PublicKey readPubKeyFromFile(String keyFileName) throws IOException {
-        InputStream in = RSA.class.getResourceAsStream(keyFileName);
-        ObjectInputStream oin =
-                new ObjectInputStream(new BufferedInputStream(in));
+    private static PublicKey readPubKeyFromFile(String keyFileName) throws IOException {
+        FileInputStream in = new FileInputStream(keyFileName);
+        ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(in));
         try {
             BigInteger m = (BigInteger) oin.readObject();
             BigInteger e = (BigInteger) oin.readObject();
@@ -76,14 +74,13 @@ public class RSA {
         }
     }
 
-    private PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
-        InputStream in = RSA.class.getResourceAsStream(keyFileName);
-        ObjectInputStream oin =
-                new ObjectInputStream(new BufferedInputStream(in));
+    private static PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
+        FileInputStream in = new FileInputStream(keyFileName);
+        ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(in));
         try {
             BigInteger m = (BigInteger) oin.readObject();
             BigInteger e = (BigInteger) oin.readObject();
-            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(m, e);
+            RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(m, e);
             KeyFactory fact = KeyFactory.getInstance("RSA");
             return fact.generatePrivate(keySpec);
         } catch (Exception e) {
@@ -102,20 +99,20 @@ public class RSA {
      * @return Encrypted text
      * @throws java.lang.Exception
      */
-    public byte[] Encrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
+    public static byte[] Encrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         if (!keysCreated){
             GenerateKeys();
         }
         byte[] encryptedData = null;
         try {
-        PublicKey pubKey = readPubKeyFromFile("/public.key");
+            PublicKey pubKey = readPubKeyFromFile(keyPath);
             // get an RSA cipher object and print the provider
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, pubKey);
             // encrypt the plain data using the public key and return it
             encryptedData= cipher.doFinal(data);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
         return encryptedData;
     }
@@ -129,15 +126,15 @@ public class RSA {
      * @return plain text
      * @throws java.lang.Exception
      */
-    public byte[] Decrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
+    public static byte[] Decrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         if (!keysCreated){
             GenerateKeys();
         }
         byte[] decryptedData = null;
         try {
-            PrivateKey privKey = readPrivKeyFromFile("/public.key");
+            PrivateKey privKey = readPrivKeyFromFile(keyPath);
             // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            final Cipher cipher = Cipher.getInstance("RSA");
             // decrypt the text using the private key
             cipher.init(Cipher.DECRYPT_MODE, privKey);
             decryptedData = cipher.doFinal(data);
@@ -147,7 +144,7 @@ public class RSA {
         return decryptedData;
     }
 
-    private enum KeyType {
+    public enum KeyType {
         PUBLIC, PRIVATE
     }
 
