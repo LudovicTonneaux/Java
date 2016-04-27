@@ -1,15 +1,19 @@
 package be.pxl;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 
 /**
  * Created by Samy Coenen on 29/03/2016.
  */
 public class Server implements Runnable {
     private int socketnr;
+    private String directory;
     Server() {
         socketnr = 13501;
     }
@@ -18,7 +22,9 @@ public class Server implements Runnable {
         this.socketnr = socketnr;
     }
 
-
+    public void SetDirectory(String path) {
+        directory = path;
+    }
     @Override
     public void run() {
         try {
@@ -42,12 +48,16 @@ public class Server implements Runnable {
         }*/
             System.out.println("Listening in 8888, Still Waiting for a connection");
             ServerSocket myServerSocket = new ServerSocket(8888);
-            int i =0;
-            while (i<1) {
+            int i = 0;
+            while (i < 1) {
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully");
 
-                InputStream ins = mySocket.getInputStream();
+                BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
+                DataInputStream d = new DataInputStream(in);
+                String fileName = d.readUTF();
+                Files.copy(d, new File(directory + fileName).toPath());
+               /* InputStream ins = mySocket.getInputStream();
                 String s = "";
                 byte[] b = new byte[10];
 
@@ -55,14 +65,17 @@ public class Server implements Runnable {
                     s = s + (new String(b));
                     b = new byte[10];
                 }
+                */
+
                 mySocket.close();
-                System.out.println("Message Received:: \n" + s);
+                System.out.println("Message Received:: \n");
                 i++;
             }
+
             myServerSocket.close();
 
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-    }
+        }
 }
