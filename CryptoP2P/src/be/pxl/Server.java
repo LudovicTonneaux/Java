@@ -25,7 +25,7 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
-int receivedFiles=0;
+            int receivedFiles=0;
             System.out.println("Listening in "+socketnr+", Still Waiting for a connection");
             ServerSocket myServerSocket = new ServerSocket(socketnr);
             int i = 0;
@@ -36,14 +36,13 @@ int receivedFiles=0;
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 DataInputStream d = new DataInputStream(in);
                 String fileName = d.readUTF();
-                //als er bestanden moeten verzonden worden stuurt de front-end alle parameters
-                String[] dataArray = fileName.split(";");
-                //als er enkel een bestand ontvangen wordt moet er niks anders gedaan worden
-                if (dataArray.length==1){
-                    //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                    if(!dataArray[0].contains("EXIT")){
+                //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
+                    if(fileName.contains("EXIT")){
                         i++;
                     } else {
+                        Files.copy(d, new File(path + fileName).toPath());
+                        System.out.println("Data Received "+fileName);
+                        receivedFiles++;
                         //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
                         if (receivedFiles==3){
                             byte[] originalDes=RSA.Decrypt(Files.readAllBytes(Paths.get(path + "CryptoP2P\\d.txt")), path + "private.key", RSA.KeyType.PRIVATE);
@@ -51,13 +50,7 @@ int receivedFiles=0;
                             DES.Decrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\d.txt"), new FileOutputStream(path + "CryptoP2P\\de.txt"));
                             Client.Send("gelukt, hash is: " + Hasher.CheckSumSHA256(path + "CryptoP2P\\de.txt"),"127.0.0.1",8888);
                         }
-                        Files.copy(d, new File(path + fileName).toPath());
-                        receivedFiles++;
-                    }
-                } else if (fileName.contains("ip")) {
-                    System.out.println("ip werd doorgestuurd");
-                    if (!RSA.GetAreKeysGenerated()){
-                        RSA.GenerateKeys("");
+
                     }
                     /* testing the encryption with strings
                         byte[] encrDesPass;
@@ -67,19 +60,8 @@ int receivedFiles=0;
                         System.out.println("encrypted pass= " + new String(encrDesPass));
                         System.out.println("originele pass= " + new String(originalDes));
                     */
-
-                        KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
-                        SecretKey myDesKey = keyGenerator.generateKey();
-                        DES.Encrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\s.txt"), new FileOutputStream(path + "CryptoP2P\\d.txt"));
-                        Client.Send(path + "CryptoP2P\\d.txt", dataArray[1]);
-
-                }
-
-
                 mySocket.close();
-                System.out.println("Data Received");
             }
-
             myServerSocket.close();
 
         } catch (IOException ex) {
