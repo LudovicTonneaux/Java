@@ -16,7 +16,7 @@ public class Client {
 
         try {
             String msg = "Iam waiting for message";
-            Socket s = new Socket(ip, 8888);
+            Socket s = new Socket(ip, 13501);
             BufferedOutputStream out = new BufferedOutputStream(s.getOutputStream());
             try (DataOutputStream d = new DataOutputStream(out)) {
                 File file = new File(filePath);
