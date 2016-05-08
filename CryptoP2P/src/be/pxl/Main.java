@@ -1,11 +1,6 @@
 package be.pxl;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Base64;
 
 public class Main {
     /**
@@ -16,7 +11,7 @@ public class Main {
         //new Thread(s1).start();
         // String path= new File("").getAbsolutePath() + "\\";
         String path= new File("").getAbsolutePath() + "\\";
-        //Server s2 = new Server(13501);
+        Server s2 = new Server(13501);
         //new Thread(s2).start();
         Client.Send(path + "CryptoP2P\\s.txt", "192.168.1.2");
     }

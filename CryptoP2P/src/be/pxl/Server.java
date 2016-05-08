@@ -1,22 +1,19 @@
 package be.pxl;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 
 /**
  * Created by Samy Coenen on 29/03/2016.
  */
 public class Server implements Runnable {
     private int socketnr;
-    private String path= new File("").getAbsolutePath() + "\\";
+    private String path = System.getProperty("user.home");// new File("").getAbsolutePath() + "\\";
 
     Server(int socketnr) {
         this.socketnr = socketnr;
