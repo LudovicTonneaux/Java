@@ -1,6 +1,7 @@
 package be.pxl;
 
 import java.io.File;
+import java.util.Scanner;
 
 public class Main {
     /**
@@ -13,6 +14,8 @@ public class Main {
         String path= new File("").getAbsolutePath() + "\\";
         Server s2 = new Server(13501);
         //new Thread(s2).start();
-        Client.Send(path + "CryptoP2P\\s.txt", "192.168.1.2");
+        Scanner s1 = new Scanner(System.in);
+        String ip = s1.next();
+        Client.Send(path + "CryptoP2P\\s.txt", ip);
     }
 }
