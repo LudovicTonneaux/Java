@@ -14,7 +14,7 @@ public class RSA {
 
     private static boolean keysCreated = false;
 
-    public static void GenerateKeys() {
+    public static void GenerateKeys(String path) {
         try {
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -27,9 +27,9 @@ public class RSA {
                     RSAPublicKeySpec.class);
             RSAPrivateKeySpec priv = fact.getKeySpec(privateKey,
                     RSAPrivateKeySpec.class);
-            saveToFile("public.key", pub.getModulus(),
+            saveToFile(path+"public.key", pub.getModulus(),
                     pub.getPublicExponent());
-            saveToFile("private.key", priv.getModulus(),
+            saveToFile(path+"private.key", priv.getModulus(),
                     priv.getPrivateExponent());
             keysCreated = true;
         } catch (Exception ex) {
@@ -37,10 +37,10 @@ public class RSA {
         }
     }
 
-    private static void saveToFile(String fileName, BigInteger mod, BigInteger exp) {
+    private static void saveToFile(String filePath, BigInteger mod, BigInteger exp) {
         ObjectOutputStream oout = null;
         try {
-            oout = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
+            oout = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)));
             oout.writeObject(mod);
             oout.writeObject(exp);
         } catch (IOException ex) {
@@ -100,9 +100,6 @@ public class RSA {
      * @throws java.lang.Exception
      */
     public static byte[] Encrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
-        if (!keysCreated){
-            GenerateKeys();
-        }
         byte[] encryptedData = null;
         try {
             PublicKey pubKey = readPubKeyFromFile(keyPath);
@@ -127,9 +124,6 @@ public class RSA {
      * @throws java.lang.Exception
      */
     public static byte[] Decrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
-        if (!keysCreated){
-            GenerateKeys();
-        }
         byte[] decryptedData = null;
         try {
             PrivateKey privKey = readPrivKeyFromFile(keyPath);
@@ -142,6 +136,10 @@ public class RSA {
             ex.printStackTrace();
         }
         return decryptedData;
+    }
+
+    public static boolean GetAreKeysGenerated(){
+        return keysCreated;
     }
 
     public enum KeyType {

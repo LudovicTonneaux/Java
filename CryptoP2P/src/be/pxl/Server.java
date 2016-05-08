@@ -1,53 +1,33 @@
 package be.pxl;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 
 /**
  * Created by Samy Coenen on 29/03/2016.
  */
 public class Server implements Runnable {
     private int socketnr;
-    private String directory;
-    Server() {
-        socketnr = 13501;
-    }
+    private String path= new File("").getAbsolutePath() + "\\";
 
     Server(int socketnr) {
         this.socketnr = socketnr;
     }
 
-    public void SetDirectory(String path) {
-        directory = path;
-    }
     @Override
     public void run() {
         try {
-
-
-       /* ServerSocket servsock = new ServerSocket(socketnr);
-
-        File myFile = new File("C://abc.txt");
-
-        while (true) {
-            Socket sock = servsock.accept();
-            byte[] mybytearray = new byte[(int) myFile.length()];
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
-            bis.read(mybytearray, 0, mybytearray.length);
-            OutputStream os = sock.getOutputStream();
-            os.write(mybytearray, 0, mybytearray.length);
-            os.flush();
-            sock.close();
-           if (myFile.exists())
-            System.exit(-1);
-        }*/
-            System.out.println("Listening in 8888, Still Waiting for a connection");
-            ServerSocket myServerSocket = new ServerSocket(8888);
+            int receivedFiles=0;
+            System.out.println("Listening in "+socketnr+", Still Waiting for a connection");
+            ServerSocket myServerSocket = new ServerSocket(socketnr);
             int i = 0;
             while (i < 1) {
                 Socket mySocket = myServerSocket.accept();
@@ -56,25 +36,37 @@ public class Server implements Runnable {
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 DataInputStream d = new DataInputStream(in);
                 String fileName = d.readUTF();
-                Files.copy(d, new File(directory + fileName).toPath());
-               /* InputStream ins = mySocket.getInputStream();
-                String s = "";
-                byte[] b = new byte[10];
+                //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
+                    if(fileName.contains("EXIT")){
+                        i++;
+                    } else {
+                        Files.copy(d, new File(path + fileName).toPath());
+                        System.out.println("Data Received "+fileName);
+                        receivedFiles++;
+                        //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
+                        if (receivedFiles==3){
+                            byte[] originalDes=RSA.Decrypt(Files.readAllBytes(Paths.get(path + "CryptoP2P\\d.txt")), path + "private.key", RSA.KeyType.PRIVATE);
+                            SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");
+                            DES.Decrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\d.txt"), new FileOutputStream(path + "CryptoP2P\\de.txt"));
+                            Client.Send("gelukt, hash is: " + Hasher.CheckSumSHA256(path + "CryptoP2P\\de.txt"),"127.0.0.1",8888);
+                        }
 
-                while (ins.read(b) > 0) {
-                    s = s + (new String(b));
-                    b = new byte[10];
-                }
-                */
-
+                    }
+                    /* testing the encryption with strings
+                        byte[] encrDesPass;
+                        byte[] originalDes;
+                        encrDesPass = RSA.Encrypt(Base64.getEncoder().encodeToString(myDesKey.getEncoded()).getBytes(), path + "public.key", RSA.KeyType.PUBLIC);
+                        originalDes = RSA.Decrypt(encrDesPass, path + "private.key", RSA.KeyType.PRIVATE);
+                        System.out.println("encrypted pass= " + new String(encrDesPass));
+                        System.out.println("originele pass= " + new String(originalDes));
+                    */
                 mySocket.close();
-                System.out.println("Message Received:: \n");
-                i++;
             }
-
             myServerSocket.close();
 
         } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        } catch (Exception ex){
             System.out.println(ex.getMessage());
         }
         }
