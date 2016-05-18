@@ -32,7 +32,8 @@ public class Client {
             System.out.println(e.getCause());
         }
     }
-    public static void Send(String message, String ip,int socket) {
+
+    public static void Send(String message, String ip, int socket) {
 
         try {
             String msg = "Iam waiting for message";

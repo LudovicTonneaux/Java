@@ -1,10 +1,12 @@
 package be.pxl;
 
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -13,17 +15,18 @@ import java.nio.file.Paths;
  */
 public class Server implements Runnable {
     private int socketnr;
-    private String path = System.getProperty("user.home");// new File("").getAbsolutePath() + "\\";
+    private String path = System.getProperty("user.home") + File.separator;// new File("").getAbsolutePath() + "\\";
 
     Server(int socketnr) {
         this.socketnr = socketnr;
+        RSA.GenerateKeys(path);
     }
 
     @Override
     public void run() {
         try {
-            int receivedFiles=0;
-            System.out.println("Listening in "+socketnr+", Still Waiting for a connection");
+            int receivedFiles = 0;
+            System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
             ServerSocket myServerSocket = new ServerSocket(socketnr);
             int i = 0;
             while (i < 1) {
@@ -33,22 +36,35 @@ public class Server implements Runnable {
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 DataInputStream d = new DataInputStream(in);
                 String fileName = d.readUTF();
-                //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                    if(fileName.contains("EXIT")){
-                        i++;
-                    } else {
-                        Files.copy(d, new File(path + fileName).toPath());
-                        System.out.println("Data Received "+fileName);
-                        receivedFiles++;
-                        //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
-                        if (receivedFiles==3){
-                            byte[] originalDes=RSA.Decrypt(Files.readAllBytes(Paths.get(path + "CryptoP2P\\d.txt")), path + "private.key", RSA.KeyType.PRIVATE);
-                            SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");
-                            DES.Decrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\d.txt"), new FileOutputStream(path + "CryptoP2P\\de.txt"));
-                            Client.Send("gelukt, hash is: " + Hasher.CheckSumSHA256(path + "CryptoP2P\\de.txt"),"127.0.0.1",8888);
+                if (fileName.equals("KEYREQUEST")) {
+                    Client.Send(path + File.separator + "public.key", ServerLocalHost.parameters[0], 13502);
+                } else {
+                    if (fileName.equals("public.key")) {
+                        if (!RSA.GetAreKeysGenerated()) {
+                            RSA.GenerateKeys("");
                         }
-
+                        KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
+                        SecretKey myDesKey = keyGenerator.generateKey();
+                        DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[2]), new FileOutputStream(path + File.separator+fileName));
+                      //  DES.Encrypt(myDesKey, new FileInputStream(new ByteArrayInputStream(ServerLocalHost.parameters[2].getBytes(StandardCharsets.UTF_8))), new FileOutputStream(path + "CryptoP2P\\encrhash.txt"));
+                        Client.Send(path + "CryptoP2P\\d.txt", fileName);
+                        Client.Send(path + "CryptoP2P\\public.key", fileName);
+                        Client.Send(path + "CryptoP2P\\encrhash.txt", fileName);
                     }
+                }
+
+                Files.copy(d, new File(path + fileName).toPath());
+                System.out.println("Data Received " + fileName);
+                receivedFiles++;
+                //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
+                if (receivedFiles == 3) {
+                    byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + "CryptoP2P\\d.txt")), path + "private.key", RSA.KeyType.PRIVATE);
+                    SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");
+                    DES.Decrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\d.txt"), new FileOutputStream(path + "CryptoP2P\\de.txt"));
+                    Client.Send("gelukt, hash is: " + Hasher.CheckSumSHA256(path + "CryptoP2P\\de.txt"), "127.0.0.1", 8888);
+                }
+
+
                     /* testing the encryption with strings
                         byte[] encrDesPass;
                         byte[] originalDes;
@@ -63,8 +79,8 @@ public class Server implements Runnable {
 
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
-        }
+    }
 }
