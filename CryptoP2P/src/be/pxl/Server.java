@@ -40,7 +40,7 @@ public class Server implements Runnable {
                     Client.Send(path + File.separator + "public.key", ServerLocalHost.parameters[0], 13502);
                 } else {
                     if (fileName.equals("public.key")) {
-                        if (!RSA.GetAreKeysGenerated()) {
+                        if (!RSA.GetAreKeysGenerated() ) {
                             RSA.GenerateKeys("");
                         }
                         KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
@@ -53,7 +53,7 @@ public class Server implements Runnable {
                     }
                 }
 
-                Files.copy(d, new File(path + fileName).toPath());
+                Files.copy(d, new File(path + fileName).toPath());//
                 System.out.println("Data Received " + fileName);
                 receivedFiles++;
                 //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
