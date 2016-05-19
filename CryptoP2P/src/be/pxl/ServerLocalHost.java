@@ -45,6 +45,8 @@ public class ServerLocalHost implements Runnable {
                     Application.GetApplication().terminate();
                 }
                 Client.Send("KEYREQUEST",parameters[1],13501);
+
+                System.out.println(mySocket.getRemoteSocketAddress());
                 /*while ((incomingString = ) != null) {
                    parameters= incomingString.split(";");
                 }*/

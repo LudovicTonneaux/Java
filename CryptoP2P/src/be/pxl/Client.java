@@ -11,7 +11,11 @@ import java.nio.file.Files;
  * Created by Buzz Lightyear on 29/03/2016.
  */
 public class Client {
-
+    /**
+     *
+     * @param filePath
+     * @param ip
+     */
     public static void Send(String filePath, String ip) {
 
         try {
@@ -33,6 +37,12 @@ public class Client {
         }
     }
 
+    /**
+     *
+     * @param message
+     * @param ip
+     * @param socket
+     */
     public static void Send(String message, String ip, int socket) {
 
         try {

@@ -14,6 +14,12 @@ public class RSA {
 
     private static boolean keysCreated = false;
 
+    /**
+     * Generate RSA keys and store in given path.
+     *
+     * @param path : The location where the keys will be stored
+     * @return void
+     */
     public static void GenerateKeys(String path) {
         try {
 
@@ -37,6 +43,12 @@ public class RSA {
         }
     }
 
+    /**
+     *
+     * @param filePath
+     * @param mod
+     * @param exp
+     */
     private static void saveToFile(String filePath, BigInteger mod, BigInteger exp) {
         ObjectOutputStream oout = null;
         try {
@@ -58,6 +70,12 @@ public class RSA {
         }
     }
 
+    /**
+     *
+     * @param keyFileName
+     * @return
+     * @throws IOException
+     */
     private static PublicKey readPubKeyFromFile(String keyFileName) throws IOException {
         FileInputStream in = new FileInputStream(keyFileName);
         ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(in));
@@ -74,6 +92,12 @@ public class RSA {
         }
     }
 
+    /**
+     *
+     * @param keyFileName
+     * @return
+     * @throws IOException
+     */
     private static PrivateKey readPrivKeyFromFile(String keyFileName) throws IOException {
         FileInputStream in = new FileInputStream(keyFileName);
         ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(in));
