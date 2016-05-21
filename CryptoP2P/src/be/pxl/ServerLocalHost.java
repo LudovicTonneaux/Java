@@ -35,18 +35,19 @@ public class ServerLocalHost implements Runnable {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(in,
                         UTF8), BUFFER_SIZE);
-                parameters= br.readLine().split(";");
+                parameters = br.readLine().split(";");
                 //0 is source ip
                 //1 is destination ip
                 //2 is file path
+                //3 is name
 
                 //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                if(parameters[0].contains("EXIT")){
+                if (parameters[0].contains("EXIT")) {
                     Application.GetApplication().terminate();
                 }
-                Client.Send("KEYREQUEST",parameters[1],13501);
+                Client.Send("KEYREQUEST", parameters[1], 13501);
 
-                System.out.println(mySocket.getRemoteSocketAddress());
+
                 /*while ((incomingString = ) != null) {
                    parameters= incomingString.split(";");
                 }*/
@@ -63,8 +64,9 @@ public class ServerLocalHost implements Runnable {
                         i++;
                     } else {
                     */
-                mySocket.close();
                 System.out.println("Data Received");
+                mySocket.close();
+
             }
 
             myServerSocket.close();
@@ -72,7 +74,7 @@ public class ServerLocalHost implements Runnable {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }

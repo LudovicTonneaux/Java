@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CryptoP2P/CryptoP2P.iml" filepath="$PROJECT_DIR$/CryptoP2P/CryptoP2P.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/Java.iml" filepath="$PROJECT_DIR$/.idea/Java.iml" />
     </modules>
   </component>
 </project>

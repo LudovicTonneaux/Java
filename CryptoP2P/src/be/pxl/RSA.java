@@ -20,7 +20,7 @@ public class RSA {
      * @param path : The location where the keys will be stored
      * @return void
      */
-    public static void GenerateKeys(String path) {
+    public static void GenerateKeys(String path, String name) {
         try {
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -33,18 +33,17 @@ public class RSA {
                     RSAPublicKeySpec.class);
             RSAPrivateKeySpec priv = fact.getKeySpec(privateKey,
                     RSAPrivateKeySpec.class);
-            saveToFile(path+"public.key", pub.getModulus(),
+            saveToFile(path + "Public_" + name + ".key", pub.getModulus(),
                     pub.getPublicExponent());
-            saveToFile(path+"private.key", priv.getModulus(),
+            saveToFile(path + "Private_" + name + ".key", priv.getModulus(),
                     priv.getPrivateExponent());
             keysCreated = true;
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
     /**
-     *
      * @param filePath
      * @param mod
      * @param exp
@@ -58,7 +57,7 @@ public class RSA {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         } finally {
             if (oout != null) {
                 try {
@@ -71,7 +70,6 @@ public class RSA {
     }
 
     /**
-     *
      * @param keyFileName
      * @return
      * @throws IOException
@@ -93,7 +91,6 @@ public class RSA {
     }
 
     /**
-     *
      * @param keyFileName
      * @return
      * @throws IOException
@@ -117,23 +114,28 @@ public class RSA {
     /**
      * Encrypt the plain data.
      *
-     * @param data : original plain data
-     * @param keyPath  :The key path
-     * @param keyType  :The type of key
+     * @param data    : original plain data
+     * @param keyPath :The key path
+     * @param keyType :The type of key
      * @return Encrypted text
      * @throws java.lang.Exception
      */
     public static byte[] Encrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         byte[] encryptedData = null;
         try {
-            PublicKey pubKey = readPubKeyFromFile(keyPath);
             // get an RSA cipher object and print the provider
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+            if (keyType.equals(KeyType.PRIVATE)) {
+                PrivateKey key = readPrivKeyFromFile(keyPath);
+                cipher.init(Cipher.ENCRYPT_MODE, key);
+            } else if (keyType.equals(KeyType.PUBLIC)) {
+                PublicKey key = readPubKeyFromFile(keyPath);
+                cipher.init(Cipher.ENCRYPT_MODE, key);
+            }
             // encrypt the plain data using the public key and return it
-            encryptedData= cipher.doFinal(data);
+            encryptedData = cipher.doFinal(data);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
         return encryptedData;
     }
@@ -141,20 +143,25 @@ public class RSA {
     /**
      * Decrypt text using private key.
      *
-     * @param data :encrypted text
-     * @param keyPath  :The key path
-     * @param keyType  :The type of key
+     * @param data    :encrypted text
+     * @param keyPath :The key path
+     * @param keyType :The type of key
      * @return plain text
      * @throws java.lang.Exception
      */
     public static byte[] Decrypt(byte[] data, String keyPath, KeyType keyType) throws Exception {
         byte[] decryptedData = null;
         try {
-            PrivateKey privKey = readPrivKeyFromFile(keyPath);
             // get an RSA cipher object and print the provider
             final Cipher cipher = Cipher.getInstance("RSA");
-            // decrypt the text using the private key
-            cipher.init(Cipher.DECRYPT_MODE, privKey);
+            if (keyType.equals(KeyType.PRIVATE)) {
+                PrivateKey key = readPrivKeyFromFile(keyPath);
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            } else if (keyType.equals(KeyType.PUBLIC)) {
+                PublicKey key = readPubKeyFromFile(keyPath);
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            }
+            // decrypt the data using the public key and return it
             decryptedData = cipher.doFinal(data);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -162,7 +169,7 @@ public class RSA {
         return decryptedData;
     }
 
-    public static boolean GetAreKeysGenerated(){
+    public static boolean GetAreKeysGenerated() {
         return keysCreated;
     }
 

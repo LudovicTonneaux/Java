@@ -1,7 +1,6 @@
 package be.pxl;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 
 /**
@@ -57,7 +56,7 @@ public class Hasher {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         } finally {
             if (oout != null) {
                 try {

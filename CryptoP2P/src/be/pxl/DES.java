@@ -4,7 +4,6 @@ import javax.crypto.*;
 import javax.crypto.spec.DESKeySpec;
 import java.io.*;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -13,30 +12,31 @@ import java.security.spec.InvalidKeySpecException;
  */
 public class DES {
 
-    public static void GenerateKeys() {
+    public static void GenerateKeys(String filePath) {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
             SecretKey myDesKey = keyGenerator.generateKey();
-
-        } catch (NoSuchAlgorithmException ex){
+            saveToFile(filePath, myDesKey);
+        } catch (NoSuchAlgorithmException ex) {
             System.out.println(ex.getMessage());
         }
+
     }
 
-    public static SecretKey openFile(String filePath){
-        SecretKey SecretKey=null;
+    public static SecretKey openFile(String filePath) {
+        SecretKey SecretKey = null;
         ObjectInputStream oin = null;
         try {
-             oin = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filePath)));
+            oin = new ObjectInputStream(new BufferedInputStream(new FileInputStream(filePath)));
             SecretKey = (SecretKey) oin.readObject();
 
-        } catch (Exception ex){
-            System.out.printf(ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
-            if (oin!=null){
-                try{
+            if (oin != null) {
+                try {
                     oin.close();
-                }catch (IOException ex) {
+                } catch (IOException ex) {
                     System.out.println(ex.getMessage());
                 }
 
@@ -54,7 +54,7 @@ public class DES {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         } finally {
             if (oout != null) {
                 try {
@@ -67,7 +67,6 @@ public class DES {
     }
 
     /**
-     *
      * @param password
      * @param sourceFile
      * @param locationFile
@@ -89,7 +88,6 @@ public class DES {
     }
 
     /**
-     *
      * @param password
      * @param sourceFile
      * @param locationFile
@@ -111,7 +109,6 @@ public class DES {
     }
 
     /**
-     *
      * @param password
      * @param mode
      * @param is
@@ -140,7 +137,6 @@ public class DES {
     }
 
     /**
-     *
      * @param is
      * @param os
      * @throws IOException

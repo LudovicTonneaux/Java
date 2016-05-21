@@ -12,7 +12,6 @@ import java.nio.file.Files;
  */
 public class Client {
     /**
-     *
      * @param filePath
      * @param ip
      */
@@ -33,12 +32,11 @@ public class Client {
             os.close();
             s.close();
         } catch (Exception e) {
-            System.out.println(e.getCause());
+            e.printStackTrace();
         }
     }
 
     /**
-     *
      * @param message
      * @param ip
      * @param socket
@@ -58,7 +56,7 @@ public class Client {
             os.close();
             s.close();
         } catch (Exception e) {
-            System.out.println(e.getCause());
+            e.printStackTrace();
         }
     }
 }

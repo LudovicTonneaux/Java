@@ -1,9 +1,5 @@
 package be.pxl;
 
-import sun.misc.IOUtils;
-import sun.nio.ch.IOUtil;
-
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
@@ -18,11 +14,10 @@ import java.util.Base64;
  */
 public class Server implements Runnable {
     private int socketnr;
-    private String path = System.getProperty("user.home") + File.separator;// new File("").getAbsolutePath() + "\\";
+    private String path = System.getProperty("user.home") + File.separator + "CRYPTO" + File.separator;// new File("").getAbsolutePath() + "\\";
 
     Server(int socketnr) {
         this.socketnr = socketnr;
-        RSA.GenerateKeys(path);
     }
 
 
@@ -41,26 +36,30 @@ public class Server implements Runnable {
                 DataInputStream d = new DataInputStream(in);
                 String fileName = d.readUTF();
                 if (fileName.equals("KEYREQUEST")) {
+                    //isDirectory checks if the folder exists and if it's a folder
+                    if (!new File(path).exists()) {
+                        Files.createDirectory(Paths.get(path));
+                    }
                     if (!RSA.GetAreKeysGenerated()) {
-                        RSA.GenerateKeys(path);
+                        RSA.GenerateKeys(path, ServerLocalHost.parameters[2]);
                     }
                     Client.Send(path + File.separator + "public.key", ServerLocalHost.parameters[0], 13502);
                 }
                 if (fileName.equals("public.key")) {
                     receivedFiles++;
                     Hasher.CheckSumSHA256(ServerLocalHost.parameters[2], ServerLocalHost.parameters[2] + "hash");
-                    RSA.Encrypt(Files.readAllBytes(Paths.get(path + File.separator + "Encrypted"  + "hash")),
-                            path + File.separator +  "hashsigned", RSA.KeyType.PRIVATE);
+                    RSA.Encrypt(Files.readAllBytes(Paths.get(path + File.separator + "Encrypted" + "hash")),
+                            path + File.separator + "hashsigned", RSA.KeyType.PRIVATE);
 
-                    SecretKey myDesKey = DES.openFile(path + File.separator +  "deskey");
-                    DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[2]), new FileOutputStream(path + File.separator + "Encrypted"  + fileName));
+                    SecretKey myDesKey = DES.openFile(path + File.separator + "deskey");
+                    DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[2]), new FileOutputStream(path + File.separator + "Encrypted" + fileName));
                     DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[2] + "hashsigned"), new FileOutputStream(path + File.separator + "Encrypted" + "encryptedhashsigned"));
-                    RSA.Encrypt(Base64.getEncoder().encodeToString(myDesKey.getEncoded()).getBytes(), path  + File.separator + "deskey", RSA.KeyType.PUBLIC);
+                    RSA.Encrypt(Base64.getEncoder().encodeToString(myDesKey.getEncoded()).getBytes(), path + File.separator + "deskey", RSA.KeyType.PUBLIC);
 
 
-                    Client.Send(path + File.separator + "Encrypted"  + fileName, ServerLocalHost.parameters[1]);
-                    Client.Send(path + File.separator + "Encrypted"  + "hashsigned", ServerLocalHost.parameters[1]);
-                    Client.Send(path + File.separator + "Encrypted"  + "deskey", ServerLocalHost.parameters[1]);
+                    Client.Send(path + File.separator + "Encrypted" + fileName, ServerLocalHost.parameters[1]);
+                    Client.Send(path + File.separator + "Encrypted" + "hashsigned", ServerLocalHost.parameters[1]);
+                    Client.Send(path + File.separator + "Encrypted" + "deskey", ServerLocalHost.parameters[1]);
 
                 } else {
                     Files.copy(d, new File(path + fileName).toPath());//
@@ -68,10 +67,10 @@ public class Server implements Runnable {
                     receivedFiles++;
                     //als alle bestanden ontvangen ziJn kan het bestand ontciJfert worden
                     if (receivedFiles == 3) {
-                        byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + File.separator + "Encrypted"  + "deskey")), path + File.separator + "private.key", RSA.KeyType.PRIVATE);
+                        byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + File.separator + "Encrypted" + "deskey")), path + File.separator + "private.key", RSA.KeyType.PRIVATE);
                         //SecretKey myDesKey = DES.openFile(path + File.separator +  "deskey");
                         SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");
-                        DES.Decrypt(myDesKey, new FileInputStream(path + "CryptoP2P\\d.txt"), new FileOutputStream(path + "CryptoP2P\\de.txt"));
+                        DES.Decrypt(myDesKey, new FileInputStream(path + File.separator + "Encrypted" + fileName), new FileOutputStream(path + File.separator + fileName));
                         Client.Send("gelukt, hash is: " + Hasher.CheckSumSHA256(path + "Encrypted" + "hash"), "127.0.0.1", 8888);
                     }
                 }
@@ -90,7 +89,7 @@ public class Server implements Runnable {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }
