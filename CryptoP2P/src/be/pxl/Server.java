@@ -23,10 +23,12 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
+        ServerSocket myServerSocket = null;
+
         try {
             int receivedFiles = 0;
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
-            ServerSocket myServerSocket = new ServerSocket(socketnr);
+            myServerSocket = new ServerSocket(socketnr);
             int i = 0;
             while (i < 1) {
                 Socket mySocket = myServerSocket.accept();
@@ -90,6 +92,15 @@ public class Server implements Runnable {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
+        } finally {
+            if (myServerSocket == null) {
+                try {
+                    myServerSocket.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+    }
     }
 }

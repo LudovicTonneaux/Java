@@ -1,7 +1,5 @@
 package be.pxl;
 
-import com.sun.glass.ui.Application;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,10 +18,11 @@ public class ServerLocalHost implements Runnable {
 
     @Override
     public void run() {
+        ServerSocket myServerSocket = null;
         try {
             int i = 0;
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
-            ServerSocket myServerSocket = new ServerSocket(socketnr);
+            myServerSocket = new ServerSocket(socketnr);
 
             while (i < 1) {
                 Socket mySocket = myServerSocket.accept();
@@ -35,17 +34,21 @@ public class ServerLocalHost implements Runnable {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(in,
                         UTF8), BUFFER_SIZE);
-                parameters = br.readLine().split(";");
+                System.out.println(br.readLine());
+                //parameters = br.readLine().split(";");
+
                 //0 is source ip
                 //1 is destination ip
                 //2 is file path
                 //3 is name
 
                 //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                if (parameters[0].contains("EXIT")) {
-                    Application.GetApplication().terminate();
-                }
-                Client.Send("KEYREQUEST", parameters[1], 13501);
+                // if (parameters[0].contains("EXIT")) {
+                //   System.exit(0);
+                // }
+
+
+                //Client.Send("KEYREQUEST", parameters[1], 13501);
 
 
                 /*while ((incomingString = ) != null) {
@@ -69,12 +72,23 @@ public class ServerLocalHost implements Runnable {
 
             }
 
-            myServerSocket.close();
+
 
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
+
+        } finally {
+            if (myServerSocket != null) {
+                try {
+                    myServerSocket.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+
         }
     }
 }
