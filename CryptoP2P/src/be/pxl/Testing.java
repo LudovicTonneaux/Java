@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.interfaces.RSAKey;
 
 
 /**
@@ -67,7 +68,10 @@ public class Testing {
             RSA.GenerateKeys(path, "A");
             RSA.GenerateKeys(path, "B");
             Hasher.CheckSumSHA256(path + "File", path + "hash");
-            FileHelper.StoreFile(RSA.Encrypt(Files.readAllBytes(Paths.get(path + "Hash")), path + "Private_A.key", RSA.KeyType.PRIVATE), path + File.separator + "File_3");
+            FileHelper.StoreFile(
+                    RSA.Encrypt(
+                            RSA.Encrypt(Files.readAllBytes(
+                                    Paths.get(path + "Hash")), path + "Private_A.key", RSA.KeyType.PRIVATE),path+"Public_B.key", RSA.KeyType.PUBLIC),path + File.separator + "File_3");
 
             DES.GenerateKeys(path + "DesKey");
             SecretKey myDesKey = DES.openFile(path + "DesKey");
@@ -86,7 +90,10 @@ public class Testing {
             byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + "File_2")), path + "Private_B.key", RSA.KeyType.PRIVATE);
             myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");
             DES.Decrypt(myDesKey, new FileInputStream(path + "File_1"), new FileOutputStream(path2 + "File"));
-            FileHelper.StoreFile(RSA.Decrypt(Files.readAllBytes(Paths.get(path + "File_3")), path + "Public_A.key", RSA.KeyType.PUBLIC), path2 + "Hash");
+            FileHelper.StoreFile(
+                    RSA.Decrypt(
+                            RSA.Decrypt(
+                                    Files.readAllBytes(Paths.get(path + "File_3")), path + "Public_A.key", RSA.KeyType.PUBLIC),path+"Private_B.key",RSA.KeyType.PRIVATE), path2 + "Hash");
 /*
             File file1 = new File("test1.txt");
             File file2 = new File("test2.txt");

@@ -24,7 +24,7 @@ public class ServerLocalHost implements Runnable {
             int i = 0;
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
             ServerSocket myServerSocket = new ServerSocket(socketnr);
-
+            
             while (i < 1) {
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully");

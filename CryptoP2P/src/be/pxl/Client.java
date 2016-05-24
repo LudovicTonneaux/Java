@@ -18,7 +18,7 @@ public class Client {
     public static void Send(String filePath, String ip) {
 
         try {
-            String msg = "Iam waiting for message";
+
             Socket s = new Socket(ip, 13501);
             BufferedOutputStream out = new BufferedOutputStream(s.getOutputStream());
             try (DataOutputStream d = new DataOutputStream(out)) {
@@ -27,7 +27,8 @@ public class Client {
                 Files.copy(file.toPath(), d);
             }
             OutputStream os = s.getOutputStream();
-            os.write(msg.getBytes());
+            os.write(filePath.getBytes());
+
             os.flush();
             os.close();
             s.close();
@@ -35,6 +36,7 @@ public class Client {
             e.printStackTrace();
         }
     }
+
 
     /**
      * @param message
@@ -44,14 +46,39 @@ public class Client {
     public static void Send(String message, String ip, int socket) {
 
         try {
-            String msg = "Iam waiting for message";
             Socket s = new Socket(ip, socket);
             BufferedOutputStream out = new BufferedOutputStream(s.getOutputStream());
             try (DataOutputStream d = new DataOutputStream(out)) {
                 d.writeUTF(message);
             }
             OutputStream os = s.getOutputStream();
-            os.write(msg.getBytes());
+            os.write(message.getBytes());
+            os.flush();
+            os.close();
+            s.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * @param name
+     * @param path
+     * @param ip
+     * @param socket
+     */
+    public static void SendWithOtherName(String name,String path, String ip, int socket) {
+
+        try {
+
+            Socket s = new Socket(ip, socket);
+            BufferedOutputStream out = new BufferedOutputStream(s.getOutputStream());
+            try (DataOutputStream d = new DataOutputStream(out)) {
+                d.writeUTF(name);
+                File file = new File(path);
+                Files.copy(file.toPath(), d);
+            }
+            OutputStream os = s.getOutputStream();
+            os.write(name.getBytes());
             os.flush();
             os.close();
             s.close();
