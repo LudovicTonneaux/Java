@@ -1,7 +1,5 @@
 package be.pxl;
 
-import org.apache.commons.io.FileUtils;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.awt.*;
@@ -60,13 +58,12 @@ public class Server implements Runnable {
                     file2 = encrypted DES key
                     file3 = encrypted signed hash
                     */
-                        Files.copy(d, new File(path + fileName)
-                                .toPath());
+                        Files.copy(d, new File(path + fileName).toPath());
                         System.out.println("starting to hash");
                         Hasher.CheckSumSHA256(ServerLocalHost.parameters[2], path + "Hash"); //hash maken van bestand en opslaan
                         byte[] signedHash = RSA.Encrypt(Files.readAllBytes(Paths.get(path + "Hash")), path + "Private_B.key", RSA.KeyType.PRIVATE); //hash signen
-                        byte[] encryptedSignedHash = RSA.Encrypt(signedHash, path + "Public.key", RSA.KeyType.PUBLIC); // encrypteren
-                        FileHelper.StoreFile(encryptedSignedHash, path + File.separator + "File_3"); //opslaan
+                        // byte[] encryptedSignedHash = RSA.Encrypt(signedHash, path + "Public.key", RSA.KeyType.PUBLIC); // encrypteren
+                        FileHelper.StoreFile(signedHash, path + File.separator + "File_3"); //opslaan
 
                         DES.GenerateKeys(path + "DesKey"); //deskey genereren
                         SecretKey myDesKey = DES.openFile(path + "DesKey"); //Deskey uit bestand uitlezen en er terug een SecretKey van maken
@@ -83,7 +80,7 @@ public class Server implements Runnable {
                         Client.Send(path + new File(ServerLocalHost.parameters[2]).getName(), mySocket.getInetAddress().getHostAddress());
                         Client.Send(path + "File_2", mySocket.getInetAddress().getHostAddress());
                         Client.Send(path + "File_3", mySocket.getInetAddress().getHostAddress());
-                        FileUtils.deleteDirectory(new File(path));
+
                     } else {
                         receivedFiles++;
                         Files.copy(d, new File(path + fileName).toPath());//
@@ -106,7 +103,7 @@ public class Server implements Runnable {
 
                             DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(path2 + bestandsNaam)); // het bestand
                             FileHelper.StoreFile(hash, path2 + "originalHash"); //de hash die ontvangen is
-                            Hasher.CheckSumSHA256(path2 + bestandsNaam, path + "Hash"); //de hash van het ontvangen bestand
+                            Hasher.CheckSumSHA256(path2 + bestandsNaam, path2 + "Hash"); //de hash van het ontvangen bestand
 
                             Desktop.getDesktop().open(new File(path2 + bestandsNaam));
                             if (Files.readAllBytes(Paths.get(path2 + "originalHash")).equals(Files.readAllBytes(Paths.get(path2 + "Hash")))) {
@@ -116,7 +113,7 @@ public class Server implements Runnable {
                             }
                             receivedFiles = 0;
                             System.out.println("afgerond");
-                            FileUtils.deleteDirectory(new File(path));
+
                         }
 
                     }

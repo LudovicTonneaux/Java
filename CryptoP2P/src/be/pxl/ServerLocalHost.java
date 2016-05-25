@@ -1,5 +1,7 @@
 package be.pxl;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,12 +18,14 @@ public class ServerLocalHost implements Runnable {
 
     ServerLocalHost(int socketnr) {
         this.socketnr = socketnr;
+
     }
 
     @Override
     public void run() {
         ServerSocket myServerSocket = null;
         try {
+            FileUtils.deleteDirectory(new File(path));
             int i = 0;
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
             myServerSocket = new ServerSocket(socketnr);
