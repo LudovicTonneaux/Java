@@ -33,15 +33,15 @@ public class ServerLocalHost implements Runnable {
             if (!new File(path).exists()) {
                 Files.createDirectory(Paths.get(path));
             }
-            if (!RSA.GetAreKeysGenerated()) {
-                RSA.GenerateKeys(path, "B");
-            }
+            RSA.GenerateKeys(path, "B");
+
 
             while (i < 1) {
 
 
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully to java backend");
+
 
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 String UTF8 = "utf8";
@@ -51,8 +51,8 @@ public class ServerLocalHost implements Runnable {
                         UTF8), BUFFER_SIZE);
                 //System.out.println(br.readLine());
                 parameters = br.readLine().split(";");
-                //0 is source ip
-                //1 is destination ip
+                //0 is destination ip
+                //1 is source ip
                 //2 is file path
                 //3 is name
 
@@ -64,8 +64,10 @@ public class ServerLocalHost implements Runnable {
 
 
                 //ik vraag de public key aan en stuur miin public key ook ineens mee zodat de ontvanger kan zien dat het van mii komt door het signen
-                Client.SendWithOtherName("KEYREQUEST", path + "Public_" + System.getProperty("user.name") + ".key", parameters[0], 13501);
-
+                Client.SendWithOtherName("KEYREQUEST", path + "Public_B.key", parameters[0], 13501);
+                if (new File(path + "Public_B.key").exists()) {
+                    System.out.println("exists");
+                }
                 System.out.println("Data Received from GUI");
                 mySocket.close();
             }
