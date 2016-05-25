@@ -37,8 +37,6 @@ public class Server implements Runnable {
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully");
 
-
-
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 DataInputStream d = new DataInputStream(in);
                 String fileName = d.readUTF(); //de bestandsnaam wordt in utf verstuurd, op deze manier is bestandsnaam en bestand inhoud appart identificeerbaar
@@ -49,8 +47,7 @@ public class Server implements Runnable {
                 if (fileName.equals("KEYREQUEST")) {
                     Files.copy(d, new File(path + "Public.key").toPath()); // we slagen zijn public key op
                     Client.SendWithOtherName("Public.key", path + "Public_" + System.getProperty("user.name") + ".key", myServerSocket.getInetAddress().getHostAddress(), 13502); //we sturen onze Public Key
-                }
-                if (fileName.equals("Public.key")) {
+                } else if (fileName.equals("Public.key")) {
                     /*
                      Encryption starts here
                     path + new File(ServerLocalHost.parameters[2]).getName()) = encrypted file
