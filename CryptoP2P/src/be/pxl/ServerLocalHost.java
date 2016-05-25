@@ -34,14 +34,14 @@ public class ServerLocalHost implements Runnable {
                 Files.createDirectory(Paths.get(path));
             }
             if (!RSA.GetAreKeysGenerated()) {
-                RSA.GenerateKeys(path, System.getProperty("user.name"));
+                RSA.GenerateKeys(path, "B");
             }
 
             while (i < 1) {
 
 
                 Socket mySocket = myServerSocket.accept();
-                System.out.println("Connected Successfully");
+                System.out.println("Connected Successfully to java backend");
 
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 String UTF8 = "utf8";

@@ -44,9 +44,10 @@ public class Server implements Runnable {
                 /*
                 Indien een verzender onze Public key nodig heeft stuurt hij ons een "KEYREQUEST" en ook tegelijk zijn public key zodat we achteraf kunnen controleren of het van hem komt
                  */
+                System.out.println(mySocket.getInetAddress().getHostAddress());
                 if (fileName.equals("KEYREQUEST")) {
                     Files.copy(d, new File(path + "Public.key").toPath()); // we slagen zijn public key op
-                    Client.SendWithOtherName("Public.key", path + "Public_" + System.getProperty("user.name") + ".key", myServerSocket.getInetAddress().getHostAddress(), 13502); //we sturen onze Public Key
+                    Client.SendWithOtherName("Public.key", path + "Public_B.key", myServerSocket.getInetAddress().getHostAddress(), 13501); //we sturen onze Public Key
                 } else if (fileName.equals("Public.key")) {
                     /*
                      Encryption starts here
@@ -55,7 +56,7 @@ public class Server implements Runnable {
                     file3 = encrypted signed hash
                     */
                     Hasher.CheckSumSHA256(ServerLocalHost.parameters[2], path + "Hash"); //hash maken van bestand
-                    byte[] signedHash = RSA.Encrypt(Files.readAllBytes(Paths.get(path + "Hash")), path + "Private_" + System.getProperty("user.name") + ".key", RSA.KeyType.PRIVATE); //hash signen
+                    byte[] signedHash = RSA.Encrypt(Files.readAllBytes(Paths.get(path + "Hash")), path + "Private_B.key", RSA.KeyType.PRIVATE); //hash signen
                     byte[] encryptedSignedHash = RSA.Encrypt(signedHash, path + "Public.key", RSA.KeyType.PUBLIC); // encrypteren
                     FileHelper.StoreFile(encryptedSignedHash, path + File.separator + "File_3"); //opslaan
 
@@ -70,6 +71,7 @@ public class Server implements Runnable {
                     /*
                     De 3 bestanden opsturen naar de persoon die ons zijn Public.key heeft gestuurd
                      */
+
                     Client.Send(path + new File(ServerLocalHost.parameters[2]).getName(), myServerSocket.getInetAddress().getHostAddress());
                     Client.Send(path + "File_2", myServerSocket.getInetAddress().getHostAddress());
                     Client.Send(path + "File_3", myServerSocket.getInetAddress().getHostAddress());
@@ -89,9 +91,9 @@ public class Server implements Runnable {
                             Files.createDirectory(Paths.get(path2));
                         }
 
-                        byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + "File_2")), path + "Private_" + System.getProperty("user.name") + ".key", RSA.KeyType.PRIVATE);
+                        byte[] originalDes = RSA.Decrypt(Files.readAllBytes(Paths.get(path + "File_2")), path + "Private_B.key", RSA.KeyType.PRIVATE);
                         SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");//Deskey uit bestand uitlezen en er terug een SecretKey van maken
-                        byte[] signedHash =  RSA.Decrypt(Files.readAllBytes(Paths.get(path + bestandsNaam)), path + "Private_" + System.getProperty("user.name") + ".key", RSA.KeyType.PRIVATE);
+                        byte[] signedHash = RSA.Decrypt(Files.readAllBytes(Paths.get(path + bestandsNaam)), path + "Private_B.key", RSA.KeyType.PRIVATE);
                         byte [] hash = RSA.Decrypt(signedHash,path+"Public.key", RSA.KeyType.PUBLIC);
 
                         DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(path2 + "File")); // het bestand
