@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.interfaces.RSAKey;
+import java.util.Scanner;
 
 
 /**
@@ -17,20 +18,24 @@ import java.security.interfaces.RSAKey;
  */
 public class Testing {
     public static void main(String[] args) {
-        /*
+        Server s2 = new Server(13501);
+        new Thread(s2).start();
+        ServerLocalHost s1 = new ServerLocalHost(8888);
+        new Thread(s1).start();
         Scanner scan1 = new Scanner(System.in);
         Scanner scan2 = new Scanner(System.in);//scanner voor enkel integers
         System.out.print("Geef het ip:");
         String ip = scan1.nextLine();
-        System.out.print("Geef de poort:");
-        int poort = scan2.nextInt();
 
-        System.out.print("Geef het bericht:");
-        String bericht = scan1.nextLine();
+        //System.out.print("Geef de poort:");
+        //int poort = scan2.nextInt();
+
+        //System.out.print("Geef het bericht:");
+        //String bericht = scan1.nextLine();
 
         //Client.Send("KEYREQEUST", ip,poort);
 
-
+/*
         try {
             String msg = "Iam waiting for message";
             Socket s = new Socket(ip, poort);
@@ -55,7 +60,7 @@ public class Testing {
             if (!new File(path).isDirectory()) {
                 Files.createDirectory(Paths.get(path));
             }
-
+Client.Send(path+"test","127.0.0.1");
             /*
             Encryption starts here
             file1 = encrypted file
@@ -64,7 +69,7 @@ public class Testing {
             A = Person1
             B = Person2
             */
-
+/*
             RSA.GenerateKeys(path, "A");
             RSA.GenerateKeys(path, "B");
             Hasher.CheckSumSHA256(path + "File", path + "hash");
@@ -78,9 +83,9 @@ public class Testing {
             DES.Encrypt(myDesKey, new FileInputStream(path + "File"), new FileOutputStream(path + "File_1"));
             FileHelper.StoreFile(RSA.Encrypt((myDesKey.getEncoded()), path + "Public_B.key", RSA.KeyType.PUBLIC), path + "File_2");
 
-            /*
+
             //Decryption starts here
-            */
+
 
             String path2 = System.getProperty("user.home") + File.separator + "CRYPTODECRYPTED" + File.separator;
             if (!new File(path2).isDirectory()) {
@@ -94,7 +99,7 @@ public class Testing {
                     RSA.Decrypt(
                             RSA.Decrypt(
                                     Files.readAllBytes(Paths.get(path + "File_3")), path + "Public_A.key", RSA.KeyType.PUBLIC),path+"Private_B.key",RSA.KeyType.PRIVATE), path2 + "Hash");
-/*
+
             File file1 = new File("test1.txt");
             File file2 = new File("test2.txt");
             File file3 = new File("test3.txt");

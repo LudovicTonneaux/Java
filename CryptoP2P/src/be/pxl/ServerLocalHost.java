@@ -10,7 +10,7 @@ import java.net.Socket;
 public class ServerLocalHost implements Runnable {
     public static String[] parameters;
     private int socketnr;
-    private String path = new File("").getAbsolutePath() + "\\";
+    private String path = System.getProperty("user.home") + File.separator + "CRYPTO" + File.separator;// new File("").getAbsolutePath() + "\\";
 
     ServerLocalHost(int socketnr) {
         this.socketnr = socketnr;
@@ -34,51 +34,28 @@ public class ServerLocalHost implements Runnable {
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(in,
                         UTF8), BUFFER_SIZE);
-                System.out.println(br.readLine());
-                //parameters = br.readLine().split(";");
-
+                //System.out.println(br.readLine());
+                parameters = br.readLine().split(";");
                 //0 is source ip
                 //1 is destination ip
                 //2 is file path
                 //3 is name
 
                 //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                // if (parameters[0].contains("EXIT")) {
-                //   System.exit(0);
-                // }
+                if (parameters[0].contains("EXIT")) {
+                    System.exit(0);
+                }
 
+                //ik vraag de public key aan en stuur miin public key ook ineens mee zodat de ontvanger kan zien dat het van mii komt door het signen
+                Client.SendWithOtherName("KEYREQUEST", path + "Public_" + System.getProperty("user.name") + ".key", parameters[1], 13501);
 
-                //Client.Send("KEYREQUEST", parameters[1], 13501);
-
-
-                /*while ((incomingString = ) != null) {
-                   parameters= incomingString.split(";");
-                }*/
-                //werkt niet met c#, utf8 eigen implementatie
-                /*DataInputStream d = new DataInputStream(in);
-                String fileName = d.readUTF();
-                new String(d,"UTF-8");
-                System.out.println(fileName);
-                //als er bestanden moeten verzonden worden stuurt de front-end alle parameters
-                String[] dataArray = fileName.split(";");
-
-                //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
-                    if(!dataArray[0].contains("EXIT")){
-                        i++;
-                    } else {
-                    */
-                System.out.println("Data Received");
+                System.out.println("Data Received from GUI");
                 mySocket.close();
-
             }
-
-
-
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-
         } finally {
             if (myServerSocket != null) {
                 try {
@@ -86,9 +63,7 @@ public class ServerLocalHost implements Runnable {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-
             }
-
         }
     }
 }

@@ -26,11 +26,11 @@ public class Client {
                 d.writeUTF(file.getName());
                 Files.copy(file.toPath(), d);
             }
-            OutputStream os = s.getOutputStream();
-            os.write(filePath.getBytes());
+           // OutputStream os = s.getOutputStream();
+            //os.write(filePath.getBytes());
 
-            os.flush();
-            os.close();
+            //os.flush();
+            //os.close();
             s.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,10 +51,10 @@ public class Client {
             try (DataOutputStream d = new DataOutputStream(out)) {
                 d.writeUTF(message);
             }
-            OutputStream os = s.getOutputStream();
+            /*OutputStream os = s.getOutputStream();
             os.write(message.getBytes());
             os.flush();
-            os.close();
+            os.close();*/
             s.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,10 +77,10 @@ public class Client {
                 File file = new File(path);
                 Files.copy(file.toPath(), d);
             }
-            OutputStream os = s.getOutputStream();
+            /*OutputStream os = s.getOutputStream();
             os.write(name.getBytes());
             os.flush();
-            os.close();
+            os.close();*/
             s.close();
         } catch (Exception e) {
             e.printStackTrace();
