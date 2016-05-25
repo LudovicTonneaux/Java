@@ -37,16 +37,7 @@ public class Server implements Runnable {
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully");
 
-                /*
-                We maken de CRYPTO directory en onze RSA keys
-                isDirectory checks of de folder bestaat en of het een folder is
-                */
-                if (!new File(path).exists()) {
-                    Files.createDirectory(Paths.get(path));
-                }
-                if (!RSA.GetAreKeysGenerated()) {
-                    RSA.GenerateKeys(path, System.getProperty("user.name"));
-                }
+
 
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 DataInputStream d = new DataInputStream(in);
@@ -57,7 +48,7 @@ public class Server implements Runnable {
                  */
                 if (fileName.equals("KEYREQUEST")) {
                     Files.copy(d, new File(path + "Public.key").toPath()); // we slagen zijn public key op
-                    Client.SendWithOtherName("Public.key", path + "Public_" + System.getProperty("user.name") + ".key", ServerLocalHost.parameters[0], 13502); //we sturen onze Public Key
+                    Client.SendWithOtherName("Public.key", path + "Public_" + System.getProperty("user.name") + ".key", myServerSocket.getInetAddress().getHostAddress(), 13502); //we sturen onze Public Key
                 }
                 if (fileName.equals("Public.key")) {
                     /*

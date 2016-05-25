@@ -3,6 +3,8 @@ package be.pxl;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by Samy Coenen on 29/03/2016.
@@ -24,7 +26,20 @@ public class ServerLocalHost implements Runnable {
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
             myServerSocket = new ServerSocket(socketnr);
 
+             /*
+                We maken de CRYPTO directory en onze RSA keys
+                isDirectory checks of de folder bestaat en of het een folder is
+                */
+            if (!new File(path).exists()) {
+                Files.createDirectory(Paths.get(path));
+            }
+            if (!RSA.GetAreKeysGenerated()) {
+                RSA.GenerateKeys(path, System.getProperty("user.name"));
+            }
+
             while (i < 1) {
+
+
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully");
 
@@ -45,9 +60,11 @@ public class ServerLocalHost implements Runnable {
                 if (parameters[0].contains("EXIT")) {
                     System.exit(0);
                 }
+                System.out.println(parameters[0] + " " + parameters[1] + " " + parameters[2]);
+
 
                 //ik vraag de public key aan en stuur miin public key ook ineens mee zodat de ontvanger kan zien dat het van mii komt door het signen
-                Client.SendWithOtherName("KEYREQUEST", path + "Public_" + System.getProperty("user.name") + ".key", parameters[1], 13501);
+                Client.SendWithOtherName("KEYREQUEST", path + "Public_" + System.getProperty("user.name") + ".key", parameters[0], 13501);
 
                 System.out.println("Data Received from GUI");
                 mySocket.close();
