@@ -26,7 +26,7 @@ public class Server implements Runnable {
         int receivedFiles = 0; // we houden bij hoeveel bestanden er ontvangen zijn
         String path = System.getProperty("user.home") + File.separator + "CRYPTO" + File.separator; //Dit werkt op alle platformen met een home directory
         ServerSocket myServerSocket = null;
-        String bestandsNaam=null;
+        String bestandsNaam = null;
 
         try {
 
@@ -106,15 +106,23 @@ public class Server implements Runnable {
                             SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");//Deskey uit bestand uitlezen en er terug een SecretKey van maken
                             // byte[] signedHash = RSA.Decrypt(Files.readAllBytes(Paths.get(path + bestandsNaam)), path + "Private_B.key", RSA.KeyType.PRIVATE);
                             byte[] hash = RSA.Decrypt((Files.readAllBytes(Paths.get(path + "File_3"))), path + "Public.key", RSA.KeyType.PUBLIC);
+                            if (bestandsNaam.equals("CryptoSavedChatFile.txt")) {
+                                DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(System.getProperty("user.home") + File.separator + bestandsNaam)); // het bestand
+                            } else {
+                                DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(path2 + bestandsNaam)); // het bestand
+                            }
 
-                            DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(path2 + bestandsNaam)); // het bestand
                             FileHelper.StoreFile(hash, path2 + "originalHash"); //de hash die ontvangen is
                             Hasher.CheckSumSHA256(path2 + bestandsNaam, path2 + "Hash"); //de hash van het ontvangen bestand
-
+                            String kindOfFile;
                             //Desktop.getDesktop().open(new File(path2 ));
+                            if (bestandsNaam.contains(".txt")) {
+                                kindOfFile = "De text hash is OK";
+                            } else{
+                                kindOfFile="De hash van het bestand: " + bestandsNaam+" is OK";
+                            }
                             if (FileUtils.contentEquals(new File(path2 + "originalHash"), new File(path2 + "Hash"))) {
-
-                                Client.SendToCsharp("De text hash is OK", "127.0.0.1");
+                                Client.SendToCsharp(kindOfFile, "127.0.0.1");
                             } else {
 
                                 Client.SendToCsharp("De hash is NIET OK\n Hash 1 is: " + Paths.get(path2 + "originalHash").toFile().length() + "\n de andere hash is" + Paths.get(path2 + "Hash").toFile().length(), "127.0.0.1");

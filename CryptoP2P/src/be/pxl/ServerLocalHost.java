@@ -57,7 +57,7 @@ public class ServerLocalHost implements Runnable {
                         UTF8), BUFFER_SIZE);
                 //System.out.println(br.readLine());
                 parameters = br.readLine().split(";");
-                FileUtils.deleteDirectory(new File(path));
+
                 //0 is destination ip
                 //1 is file path
 
@@ -66,7 +66,7 @@ public class ServerLocalHost implements Runnable {
                 if (parameters[0].contains("EXIT")) {
                     System.exit(0);
                 }
-                System.out.println(parameters[0] + " " + parameters[1] + " " + parameters[2]);
+                System.out.println(parameters[0] + " " + parameters[1] );
 
 
                 //ik vraag de public key aan en stuur miin public key ook ineens mee zodat de ontvanger kan zien dat het van mii komt door het signen
