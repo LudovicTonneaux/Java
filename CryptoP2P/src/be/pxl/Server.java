@@ -1,8 +1,9 @@
 package be.pxl;
 
+import org.apache.commons.io.FileUtils;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -47,6 +48,11 @@ public class Server implements Runnable {
                  */
                     System.out.println(mySocket.getInetAddress().getHostAddress());
                     if (fileName.equals("KEYREQUEST")) {
+                        FileUtils.deleteDirectory(new File(path));
+                        if (!new File(path).exists()) {
+                            Files.createDirectory(Paths.get(path));
+                        }
+                        RSA.GenerateKeys(path, "B");
                         Files.copy(d, new File(path + "Public.key").toPath()); // we slagen zijn public key op
                         System.out.println("sending public: " + path + "Public_B.key");
                         Client.SendWithOtherName("Public.key", path + "Public_B.key", mySocket.getInetAddress().getHostAddress(), 13501); //we sturen onze Public Key
@@ -60,7 +66,7 @@ public class Server implements Runnable {
                     */
                         Files.copy(d, new File(path + fileName).toPath());
                         System.out.println("starting to hash");
-                        Hasher.CheckSumSHA256(ServerLocalHost.parameters[2], path + "Hash"); //hash maken van bestand en opslaan
+                        Hasher.CheckSumSHA256(ServerLocalHost.parameters[1], path + "Hash"); //hash maken van bestand en opslaan
                         byte[] signedHash = RSA.Encrypt(Files.readAllBytes(Paths.get(path + "Hash")), path + "Private_B.key", RSA.KeyType.PRIVATE); //hash signen
                         // byte[] encryptedSignedHash = RSA.Encrypt(signedHash, path + "Public.key", RSA.KeyType.PUBLIC); // encrypteren
                         FileHelper.StoreFile(signedHash, path + File.separator + "File_3"); //opslaan
@@ -71,13 +77,13 @@ public class Server implements Runnable {
                         FileHelper.StoreFile(encryptedDes, path + "File_2"); //DES encrypted opslaan
 
                         //Bestand uit parameters van GUI encrypteren met DES en dat bestand opslagen in home/$user/CRYPTO/bestandsnaam
-                        DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[2]), new FileOutputStream(path + new File(ServerLocalHost.parameters[2]).getName()));
+                        DES.Encrypt(myDesKey, new FileInputStream(ServerLocalHost.parameters[1]), new FileOutputStream(path + new File(ServerLocalHost.parameters[1]).getName()));
 
                     /*
                     De 3 bestanden opsturen naar de persoon die ons zijn Public.key heeft gestuurd
                      */
 
-                        Client.Send(path + new File(ServerLocalHost.parameters[2]).getName(), mySocket.getInetAddress().getHostAddress());
+                        Client.Send(path + new File(ServerLocalHost.parameters[1]).getName(), mySocket.getInetAddress().getHostAddress());
                         Client.Send(path + "File_2", mySocket.getInetAddress().getHostAddress());
                         Client.Send(path + "File_3", mySocket.getInetAddress().getHostAddress());
 
@@ -105,17 +111,17 @@ public class Server implements Runnable {
                             FileHelper.StoreFile(hash, path2 + "originalHash"); //de hash die ontvangen is
                             Hasher.CheckSumSHA256(path2 + bestandsNaam, path2 + "Hash"); //de hash van het ontvangen bestand
 
-                            Desktop.getDesktop().open(new File(path2 + bestandsNaam));
-                            if (Files.readAllBytes(Paths.get(path2 + "originalHash")).equals(Files.readAllBytes(Paths.get(path2 + "Hash")))) {
-                                Client.Send("De hash is OK", "127.0.0.1", 8889);
+                            //Desktop.getDesktop().open(new File(path2 ));
+                            if (FileUtils.contentEquals(new File(path2 + "originalHash"), new File(path2 + "Hash"))) {
+
+                                Client.SendToCsharp("De text hash is OK", "127.0.0.1");
                             } else {
-                                Client.Send("De hash is NIET OK", "127.0.0.1", 8889);
+
+                                Client.SendToCsharp("De hash is NIET OK\n Hash 1 is: " + Paths.get(path2 + "originalHash").toFile().length() + "\n de andere hash is" + Paths.get(path2 + "Hash").toFile().length(), "127.0.0.1");
                             }
                             receivedFiles = 0;
                             System.out.println("afgerond");
-
                         }
-
                     }
                 }
                 mySocket.close();

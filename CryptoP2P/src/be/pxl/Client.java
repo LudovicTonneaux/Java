@@ -37,6 +37,26 @@ public class Client {
         }
     }
 
+    public static void SendToCsharp(String message, String ip) {
+
+        try {
+
+            Socket s = new Socket(ip, 8889);
+            BufferedOutputStream out = new BufferedOutputStream(s.getOutputStream());
+            try (DataOutputStream d = new DataOutputStream(out)) {
+                d.write(message.getBytes("UTF-8"));
+
+            }
+            OutputStream os = s.getOutputStream();
+            os.write(message.getBytes());
+            os.flush();
+            os.close();
+            s.close();
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+        }
+    }
+
 
     /**
      * @param message

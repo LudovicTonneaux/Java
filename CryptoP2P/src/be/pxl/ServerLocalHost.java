@@ -25,7 +25,7 @@ public class ServerLocalHost implements Runnable {
     public void run() {
         ServerSocket myServerSocket = null;
         try {
-            FileUtils.deleteDirectory(new File(path));
+
             int i = 0;
             System.out.println("Listening in " + socketnr + ", Still Waiting for a connection");
             myServerSocket = new ServerSocket(socketnr);
@@ -34,10 +34,7 @@ public class ServerLocalHost implements Runnable {
                 We maken de CRYPTO directory en onze RSA keys
                 isDirectory checks of de folder bestaat en of het een folder is
                 */
-            if (!new File(path).exists()) {
-                Files.createDirectory(Paths.get(path));
-            }
-            RSA.GenerateKeys(path, "B");
+
 
 
             while (i < 1) {
@@ -46,6 +43,11 @@ public class ServerLocalHost implements Runnable {
                 Socket mySocket = myServerSocket.accept();
                 System.out.println("Connected Successfully to java backend");
 
+                FileUtils.deleteDirectory(new File(path));
+                if (!new File(path).exists()) {
+                    Files.createDirectory(Paths.get(path));
+                }
+                RSA.GenerateKeys(path, "B");
 
                 BufferedInputStream in = new BufferedInputStream(mySocket.getInputStream());
                 String UTF8 = "utf8";
@@ -55,10 +57,10 @@ public class ServerLocalHost implements Runnable {
                         UTF8), BUFFER_SIZE);
                 //System.out.println(br.readLine());
                 parameters = br.readLine().split(";");
+                FileUtils.deleteDirectory(new File(path));
                 //0 is destination ip
-                //1 is source ip
-                //2 is file path
-                //3 is name
+                //1 is file path
+
 
                 //doorgegeven string bevat EXIT dus deze thread moet stoppen/niet meer loopen
                 if (parameters[0].contains("EXIT")) {
