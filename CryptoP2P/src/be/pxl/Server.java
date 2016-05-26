@@ -106,14 +106,17 @@ public class Server implements Runnable {
                             SecretKey myDesKey = new SecretKeySpec(originalDes, 0, originalDes.length, "DES");//Deskey uit bestand uitlezen en er terug een SecretKey van maken
                             // byte[] signedHash = RSA.Decrypt(Files.readAllBytes(Paths.get(path + bestandsNaam)), path + "Private_B.key", RSA.KeyType.PRIVATE);
                             byte[] hash = RSA.Decrypt((Files.readAllBytes(Paths.get(path + "File_3"))), path + "Public.key", RSA.KeyType.PUBLIC);
+                            String filelocation;
                             if (bestandsNaam.equals("CryptoSavedChatFile.txt")) {
+                                filelocation = System.getProperty("user.home") + File.separator + bestandsNaam;
                                 DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(System.getProperty("user.home") + File.separator + bestandsNaam)); // het bestand
                             } else {
+                               filelocation = path2 + bestandsNaam;
                                 DES.Decrypt(myDesKey, new FileInputStream(path + bestandsNaam), new FileOutputStream(path2 + bestandsNaam)); // het bestand
                             }
 
                             FileHelper.StoreFile(hash, path2 + "originalHash"); //de hash die ontvangen is
-                            Hasher.CheckSumSHA256(path2 + bestandsNaam, path2 + "Hash"); //de hash van het ontvangen bestand
+                            Hasher.CheckSumSHA256(filelocation, path2 + "Hash"); //de hash van het ontvangen bestand
                             String kindOfFile;
                             //Desktop.getDesktop().open(new File(path2 ));
                             if (bestandsNaam.contains(".txt")) {
